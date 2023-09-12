@@ -4,27 +4,33 @@ import { Overlay, ModalDiv } from './Modal.styled';
 
 export class Modal extends Component {
   componentDidMount() {
-    document.addEventListener('keydown', this.closeModal);
+    document.addEventListener('keydown', this.handleCloseModal);
   }
 
   componentWillUnmount() {
-    document.removeEventListener('keydown', this.closeModal);
+    document.removeEventListener('keydown', this.handleCloseModal);
   }
 
-  closeModal = ({ target, currentTarget, code }) => {
-    if (target === currentTarget || code === 'Escape') {
-      this.props.close();
+  handleCloseModal = evt => {
+    if (evt.code === 'Escape') {
+      this.props.onModalClose();
+    }
+  };
+
+  handleBackdropClose = ({ target, currentTarget }) => {
+    if (target === currentTarget) {
+      this.props.onModalClose();
     }
   };
 
   render() {
-    const { closeModal } = this;
+    const { handleBackdropClose } = this;
     const { img, alt } = this.props;
 
     return (
-      <Overlay onclick={closeModal}>
+      <Overlay onClick={handleBackdropClose}>
         <ModalDiv>
-          <img src={img} alt={alt} />
+          <img img={img} alt={alt} />
         </ModalDiv>
       </Overlay>
     );
@@ -34,5 +40,5 @@ export class Modal extends Component {
 Modal.propTypes = {
   img: PropTypes.string,
   alt: PropTypes.string,
-  closeModal: PropTypes.func,
+  handleBackdropClose: PropTypes.func,
 };

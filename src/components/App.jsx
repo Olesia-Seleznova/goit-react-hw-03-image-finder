@@ -1,36 +1,31 @@
-// import React from 'react';
+import React from 'react';
 import { Component } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { AppSection } from './App.styled';
-import { Searchbar } from './Searchbar/Searchbar';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { Modal } from './Modal/Modal';
 import { Loader } from './Loader/Loader';
 import { Button } from './Button/Button';
-import { SearchForm } from './Searchbar/SearchForm/SearchForm';
-import { ImageGalleryItem } from './ImageGallery/ImageGalleryItem/ImageGalleryItem';
+import { Searchbar } from './Searchbar/Searchbar';
 import { fetchImages } from 'api/API';
 
 export class App extends Component {
   state = {
     items: [],
+    totalItems: null,
     page: 1,
     inputValue: '',
     loading: false,
     error: false,
     showModal: false,
     modalImageSrc: '',
+    modalImageAlt: '',
   };
 
-  handlerSubmit = evt => {
-    evt.preventDefault();
-    if (this.state.inputValue.trim() === '') {
-      toast.error('Write correct search query!');
-      return;
-    }
-    this.props.onSubmit(this.state.inputValue);
+  handleSubmit = inputValue => {
     this.setState({
-      inputValue: evt.target.elements.inputValue.value,
+      inputValue,
       items: [],
       page: 1,
     });
@@ -42,15 +37,18 @@ export class App extends Component {
     }));
   };
 
-  openModal = src => {
+  handleClick = evt => {
+    const modalSrc = evt.target.dataset.src;
+    const modalAlt = evt.target.alt;
     this.setState({
       showModal: true,
-      modalImageSrc: src,
+      modalImageSrc: modalSrc,
+      modalImageAlt: modalAlt,
     });
   };
 
   closeModal = () => {
-    this.setState({ showModal: false, modalImageSrc: '' });
+    this.setState({ showModal: false });
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -59,14 +57,17 @@ export class App extends Component {
       this.setState({ loading: true });
 
       fetchImages(inputValue, page)
-        .then(({ images }) => {
-          this.setState(({ items }) => ({ items: [...items, ...images] }));
-          if (images.length < 12) {
+        .then(({ hits, totalHits }) => {
+          if (!hits.length) {
             toast.error(
               `OOOps... no picture requested "${this.state.inputValue}"`
             );
             return;
           }
+          this.setState(prevState => ({
+            items: [...prevState.items, ...hits],
+            totalItems: totalHits,
+          }));
         })
         .catch(erorr => this.setState({ erorr: erorr.message }))
         .finally(() => this.setState({ loading: false }));
@@ -74,21 +75,32 @@ export class App extends Component {
   }
 
   render() {
-    const { items, loading, showModal, modalImageSrc } = this.state;
-    const { hendlerLoadMore, handlerSubmit, closeModal } = this;
+    const { items, error, loading, showModal, modalImageSrc, modalImageAlt } =
+      this.state;
+    const { handleClick, hendlerLoadMore, handleSubmit, closeModal } = this;
 
     return (
       <AppSection>
-        <Searchbar>
-          <SearchForm onFormSubmit={handlerSubmit} />
+        <Searchbar onFormSubmit={handleSubmit}>
+          {error && !loading && (
+            <h1>Oooops... Something went wrong. Try reloading the page!</h1>
+          )}
         </Searchbar>
-        <ImageGallery>
-          <ImageGalleryItem />
-        </ImageGallery>
+        <ImageGallery items={items} clicks={handleClick} />
+
         {loading && <Loader />}
         {items.length > 0 && <Button loadMore={hendlerLoadMore} />}
+
+        {showModal && (
+          <Modal
+            img={modalImageSrc}
+            alt={modalImageAlt}
+            onModalClose={closeModal}
+          >
+            {' '}
+          </Modal>
+        )}
         <ToastContainer autoClose={3000} />
-        {showModal && <Modal url={modalImageSrc} close={closeModal} />}
       </AppSection>
     );
   }
