@@ -13,7 +13,7 @@ import { fetchImages } from 'api/API';
 export class App extends Component {
   state = {
     items: [],
-    totalItems: null,
+    totalItems: 0,
     page: 1,
     inputValue: '',
     loading: false,
@@ -28,6 +28,7 @@ export class App extends Component {
       inputValue,
       items: [],
       page: 1,
+      totalItems: 0,
     });
   };
 
@@ -37,13 +38,11 @@ export class App extends Component {
     }));
   };
 
-  handleClick = evt => {
-    const modalSrc = evt.target.dataset.src;
-    const modalAlt = evt.target.alt;
+  handleClick = (src, alt) => {
     this.setState({
       showModal: true,
-      modalImageSrc: modalSrc,
-      modalImageAlt: modalAlt,
+      modalImageSrc: src,
+      modalImageAlt: alt,
     });
   };
 
@@ -75,8 +74,15 @@ export class App extends Component {
   }
 
   render() {
-    const { items, error, loading, showModal, modalImageSrc, modalImageAlt } =
-      this.state;
+    const {
+      items,
+      error,
+      loading,
+      showModal,
+      modalImageSrc,
+      modalImageAlt,
+      totalItems,
+    } = this.state;
     const { handleClick, hendlerLoadMore, handleSubmit, closeModal } = this;
 
     return (
@@ -89,7 +95,7 @@ export class App extends Component {
         <ImageGallery items={items} clicks={handleClick} />
 
         {loading && <Loader />}
-        {items.length > 0 && <Button loadMore={hendlerLoadMore} />}
+        {totalItems !== items.length && <Button loadMore={hendlerLoadMore} />}
 
         {showModal && (
           <Modal
