@@ -11,9 +11,8 @@ export const ImageGallery = ({ items, clicks }) => {
         return (
           <ImageGalleryItem
             key={id}
-            alt="img"
             src={webformatURL}
-            srcLarge={largeImageURL}
+            dataSrc={largeImageURL}
             tags={tags}
             onClick={clicks}
           />

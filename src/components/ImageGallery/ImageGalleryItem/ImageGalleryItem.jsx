@@ -7,12 +7,7 @@ export const ImageGalleryItem = ({ src, tags, dataSrc, onClick }) => {
   };
   return (
     <GalleryItem>
-      <GalleryImg
-        src={src}
-        data-src={dataSrc}
-        alt={tags}
-        onClick={handleClick}
-      />
+      <GalleryImg src={src} alt={tags} onClick={handleClick} />
     </GalleryItem>
   );
 };
