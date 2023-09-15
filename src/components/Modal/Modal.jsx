@@ -30,7 +30,7 @@ export class Modal extends Component {
     return (
       <Overlay onClick={handleBackdropClose}>
         <ModalDiv>
-          <img img={img} alt={alt} />
+          <img src={img} alt={alt} />
         </ModalDiv>
       </Overlay>
     );
