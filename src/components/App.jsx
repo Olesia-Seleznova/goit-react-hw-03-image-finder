@@ -33,8 +33,8 @@ export class App extends Component {
   };
 
   hendlerLoadMore = () => {
-    this.setState(pevState => ({
-      page: pevState.page + 1,
+    this.setState(prevState => ({
+      page: prevState.page + 1,
     }));
   };
 
